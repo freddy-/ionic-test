@@ -3,22 +3,75 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic'])
+angular.module('app', ['ionic', 'ngCordova'])
+
+.controller('ctrl', function($scope, $cordovaBluetoothSerial){
+  $scope.teste = "teste";
+
+  console.log(JSON.stringify($cordovaBluetoothSerial));
+
+  $cordovaBluetoothSerial.isEnabled(function () {
+    console.log("Bluetooth is Enabled.");
+  }, function (reason) {
+    console.log("Bluetooth is *not* Enabled.");
+    //abre a config de bluetooth
+    bluetoothSerial.showBluetoothSettings(function(){},function(){});
+  });
+})
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
-    if(window.cordova && window.cordova.plugins.Keyboard) {
-      // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-      // for form inputs)
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+	
+	//http://stackoverflow.com/questions/22661494/view-ionic-mobile-app-on-fullscreen
+  //esconde a statusbar
+	StatusBar.hide();
 
-      // Don't remove this line unless you know what you are doing. It stops the viewport
-      // from snapping when text inputs are focused. Ionic handles this internally for
-      // a much nicer keyboard experience.
-      cordova.plugins.Keyboard.disableScroll(true);
-    }
-    if(window.StatusBar) {
-      StatusBar.styleDefault();
-    }
+    //https://github.com/don/BluetoothSerial/issues/181
+    //verifica se o bluetooth esta habilitado
+    bluetoothSerial.isEnabled(function () {
+      console.log("Bluetooth is Enabled.");
+    }, function (reason) {
+      console.log("Bluetooth is *not* Enabled.");
+      //abre a config de bluetooth
+      bluetoothSerial.showBluetoothSettings(function(){},function(){});
+    });
+
+/*
+    //lista os dispositivos pareados
+    bluetoothSerial.list(
+      function(list){
+        console.log("\n\n");
+        console.log("dispositivos encontrados");
+
+        for (var i = list.length - 1; i >= 0; i--) {
+          console.log(list[i].name + " " + list[i].address);
+        };
+
+        //conecta com o dispositivo com MAC ADDR
+        bluetoothSerial.connect("20:14:08:26:25:64",
+          function(){
+            console.log("conectado");
+
+            //aplica um listener para quando o dispositivo enviar dados
+            bluetoothSerial.subscribe('-', function(data){
+                console.log(data);
+            }, function(){
+
+            });
+
+            //envia dados para o dispositivo
+            bluetoothSerial.write("hello-", function(){}, function(){});
+
+          },function(){
+            console.log("fail!");
+          });
+
+      }, function(){
+          console.log("fail!");
+      });
+    
+*/
+
   });
+
 })
