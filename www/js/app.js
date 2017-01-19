@@ -5,18 +5,27 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('app', ['ionic', 'ngCordova'])
 
-.controller('ctrl', function($scope, $cordovaBluetoothSerial){
+
+.service('bluetooth', function() {
+    this.checkBT = function () {
+      bluetoothSerial.isEnabled(function () {
+        console.log("Bluetooth is Enabled.");
+      }, function (reason) {
+        console.log("Bluetooth is *not* Enabled.");
+        //abre a config de bluetooth
+        bluetoothSerial.showBluetoothSettings(function(){},function(){});
+      });
+    };
+
+    //TODO criar as outras functions para utilizar o bluetooth neste service
+})
+
+.controller('ctrl', function($scope, bluetooth, $timeout){
   $scope.teste = "teste";
+  $timeout(function () {
+    bluetooth.checkBT();
+   },100);
 
-  console.log(JSON.stringify($cordovaBluetoothSerial));
-
-  $cordovaBluetoothSerial.isEnabled(function () {
-    console.log("Bluetooth is Enabled.");
-  }, function (reason) {
-    console.log("Bluetooth is *not* Enabled.");
-    //abre a config de bluetooth
-    bluetoothSerial.showBluetoothSettings(function(){},function(){});
-  });
 })
 
 .run(function($ionicPlatform) {
@@ -25,7 +34,7 @@ angular.module('app', ['ionic', 'ngCordova'])
 	//http://stackoverflow.com/questions/22661494/view-ionic-mobile-app-on-fullscreen
   //esconde a statusbar
 	StatusBar.hide();
-
+/*
     //https://github.com/don/BluetoothSerial/issues/181
     //verifica se o bluetooth esta habilitado
     bluetoothSerial.isEnabled(function () {
@@ -36,7 +45,7 @@ angular.module('app', ['ionic', 'ngCordova'])
       bluetoothSerial.showBluetoothSettings(function(){},function(){});
     });
 
-/*
+
     //lista os dispositivos pareados
     bluetoothSerial.list(
       function(list){
@@ -74,4 +83,4 @@ angular.module('app', ['ionic', 'ngCordova'])
 
   });
 
-})
+});
