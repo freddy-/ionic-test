@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, height=device-height">
     <title></title>
 
     <link rel="manifest" href="manifest.json">
@@ -31,15 +31,12 @@
   </head>
   <body ng-app="app" ng-controller="ctrl">
 
-    <ion-pane>
-      <ion-content>
-	<!-- criar estrutura contendo a imagem do RPM de fundo, ponteiro, barra inferior com labels para outras infos 
-	<img class="tachometer" src="img/tachometer.jpg"></img>
-	<div class="info" ></div>
-	-->
-        {{teste}}
-      </ion-content>
-    </ion-pane>
+    <div class="rpm-container">
+	       <!-- criar estrutura contendo a imagem do RPM de fundo, ponteiro, barra inferior com labels para outras infos -->
+      	<img class="tachometer" src="img/tachometer.jpg"></img>
+      	<div class="info" ></div>
+    </div>
+    
   </body>
 
 </html>

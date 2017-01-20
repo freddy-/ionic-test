@@ -24,7 +24,7 @@ angular.module('app', ['ionic', 'ngCordova'])
   $scope.teste = "teste";
   $timeout(function () {
     bluetooth.checkBT();
-   },100);
+   },250);
 
 })
 
