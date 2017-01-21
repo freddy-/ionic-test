@@ -30,13 +30,18 @@
     <script src="js/app.js"></script>
   </head>
   <body ng-app="app" ng-controller="ctrl">
-
-    <div class="rpm-container">
-	       <!-- criar estrutura contendo a imagem do RPM de fundo, ponteiro, barra inferior com labels para outras infos -->
-      	<img class="tachometer" src="img/tachometer.jpg"></img>
-      	<div class="info" ></div>
-    </div>
-    
+        <div class="rpm-container">
+	        <!-- criar estrutura contendo a imagem do RPM de fundo, ponteiro, barra inferior com labels para outras infos -->
+        	<img class="tachometer" src="img/tachometer.jpg" style="transform: rotate(-{{rangeval}}deg)"></img>
+      	  <div class="info" >
+            <div class = "item range">
+              <input type = "range" name = "range1" ng-model="rangeval" min="285" max="436" />
+            </div>
+            <div class="marcador" style="transform: rotate({{rangeval}}deg)">
+              <div class="agulha"></div>
+            </div>
+          </div>
+        </div>
   </body>
 
 </html>
