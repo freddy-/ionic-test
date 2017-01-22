@@ -9820,7 +9820,7 @@ html, body, .rpm-container {
 
 .tachometer {
   width: 100%;
-  transform: rotate(41deg);
+  transform: rotate(-316deg);
   transition: 100ms linear all; }
 
 .info {
@@ -9834,7 +9834,8 @@ html, body, .rpm-container {
   position: fixed;
   bottom: 45px;
   width: 100%;
-  transition: 100ms linear all; }
+  transition: 100ms linear all;
+  transform: rotate(285deg); }
 
 .agulha {
   bottom: 0px;

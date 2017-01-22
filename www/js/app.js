@@ -5,6 +5,13 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('app', ['ionic', 'ngCordova'])
 
+.controller('ListBTController', function($scope){
+
+})
+
+.controller('GaugeController', function($scope){
+
+})
 
 .service('bluetooth', function() {
     this.checkBT = function () {
@@ -17,15 +24,64 @@ angular.module('app', ['ionic', 'ngCordova'])
       });
     };
 
-    //TODO criar as outras functions para utilizar o bluetooth neste service
+    //TODO expor o objeto bluetooth serial
 })
 
-.controller('ctrl', function($scope, bluetooth, $timeout){
-  $scope.teste = "teste";
-  $timeout(function () {
+.controller('ctrl', function($scope, bluetooth, $timeout, $ionicPlatform){
+  $ionicPlatform.ready(function() {
+    console.log("ready");
     bluetooth.checkBT();
-   },250);
 
+    var map = function(x, inMin, inMax, outMin, outMax){
+      return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+
+    $scope.calculateRotations = function(rpm){
+
+      console.log(rpm);
+
+      //TODO calcular RPM para graus
+      //0 a 9000 RPM
+      //285 a 423
+      var anguloEscala;
+      var anguloAgulha;
+
+      //a imagem utilizada de fundo tem uma escala diferente quando é de 0 a 1000 RPM
+      if(rpm <= 1000){
+        anguloEscala = map(rpm, 0.0, 1000.0, 316.0, 325.0);
+        anguloAgulha = map(rpm, 0.0, 1000.0, 285.0, 297.0);
+      }else{
+        anguloEscala = map(rpm, 1000.0, 9000.0, 325.0, 440.0);
+        anguloAgulha = map(rpm, 1000.0, 9000.0, 297.0, 437.0);
+      }
+
+      $scope.escala = anguloEscala;
+      $scope.agulha = anguloAgulha;
+    };
+    
+    $scope.calculateRotations($scope.rangeval);
+  });
+
+  $scope.rangeval = 0;
+  $scope.escala = 316;
+  $scope.agulha = 285;
+
+})
+
+.config(function($stateProvider, $urlRouterProvider){
+  $stateProvider
+    .state('listBT', {
+      url: '/listBT',
+      templateUtl: 'templates/listBT.html',
+      controller: 'ListBTController'
+    })
+    .state('gauge', {
+      url: '/gauge',
+      templateUtl: 'templates/gauge.html',
+      controller: 'GaugeController'
+    });
+
+    $urlRouterProvider.otherwise('/listBT');
 })
 
 .run(function($ionicPlatform) {
