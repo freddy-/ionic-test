@@ -5,36 +5,86 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('app', ['ionic', 'ngCordova'])
 
-.controller('ListBTController', function($scope){
-
-})
-
-.controller('GaugeController', function($scope){
-
-})
-
-.service('bluetooth', function() {
-    this.checkBT = function () {
-      bluetoothSerial.isEnabled(function () {
-        console.log("Bluetooth is Enabled.");
-      }, function (reason) {
-        console.log("Bluetooth is *not* Enabled.");
-        //abre a config de bluetooth
-        bluetoothSerial.showBluetoothSettings(function(){},function(){});
-      });
-    };
-
-    //TODO expor o objeto bluetooth serial
-})
-
-.controller('ctrl', function($scope, bluetooth, $timeout, $ionicPlatform){
+.controller('ListBTController', function($scope, $ionicPlatform, $ionicLoading, $location){
   $ionicPlatform.ready(function() {
-    console.log("ready");
-    bluetooth.checkBT();
 
-    var map = function(x, inMin, inMax, outMin, outMax){
-      return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-    }
+    bluetoothSerial.isEnabled(function () {
+      console.log("Bluetooth is Enabled.");
+    }, function (reason) {
+    console.log("Bluetooth is *not* Enabled.");
+      //abre a config de bluetooth
+      bluetoothSerial.showBluetoothSettings(function(){},function(){});
+    });
+
+    bluetoothSerial.isConnected(
+      function() {
+          console.log("Bluetooth is connected");
+          
+          //mudar pra tela do gauge
+          $location.path('/gauge');
+      },
+
+      function() { //nao esta conectado
+        console.log("nao conectado");
+
+        $scope.$apply(function () {
+          $scope.select = function(btDevice){
+            console.log(btDevice);
+
+            $ionicLoading.show({template: 'Conectando...'});
+
+            bluetoothSerial.connect(btDevice.address,
+              function(){
+                console.log("conectado");
+                $scope.$apply(function () {
+                  $ionicLoading.hide();
+                  //mudar pra tela do gauge
+                  $location.path('/gauge');
+                });
+                
+                /*
+                //aplica um listener para quando o dispositivo enviar dados
+                bluetoothSerial.subscribe('-', 
+                  function(data){
+                    console.log(data);
+                  },
+                  function(){
+
+                  }
+                );
+                */
+
+              }, function(){
+                console.log("fail!");
+                $scope.$apply(function () {
+                  $ionicLoading.hide();
+                });
+            });
+          };
+        });
+
+        bluetoothSerial.list(
+          function(list){
+            $scope.$apply(function () {
+              $scope.items = list;
+            });
+          }, function(){
+            console.log("fail!");
+        });
+      }
+    );
+  });
+})
+
+.controller('GaugeController', function($scope, $timeout, $ionicPlatform){
+  
+  //função map copiada do arduino
+  var map = function(x, inMin, inMax, outMin, outMax){
+    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+  }
+
+  $ionicPlatform.ready(function() {
+    console.log("ready");  
 
     $scope.calculateRotations = function(rpm){
 
@@ -55,11 +105,50 @@ angular.module('app', ['ionic', 'ngCordova'])
         anguloAgulha = map(rpm, 1000.0, 9000.0, 297.0, 437.0);
       }
 
+      console.log(JSON.stringify({escala: anguloEscala, agulha: anguloAgulha}));
+
       $scope.escala = anguloEscala;
       $scope.agulha = anguloAgulha;
     };
     
     $scope.calculateRotations($scope.rangeval);
+
+
+    bluetoothSerial.subscribe(';', function (data) {
+        //console.log(data);
+        $scope.$apply(function () {
+          $scope.calculateRotations(parseInt(data.replace(';', '')) * 10);
+        });
+    }, function(){
+
+    });
+
+    //neste ponto o android já estará conectado ao dispositivo bluetooth
+    //resta receber os dados
+/*
+    var dadosRecebidos = new Array();
+    bluetoothSerial.subscribeRawData( 
+      function(data){
+        var bytes = new Uint8Array(data);
+        console.log(JSON.stringify(bytes));
+        /*
+        for(var val; bytes.length; val++){
+          if(bytes[val] == 45){
+            console.log(JSON.stringify(dadosRecebidos));
+            dadosRecebidos = new Array();
+            console.log("FIM")
+          }else{
+            dadosRecebidos.push(bytes[val]);
+          }
+        }
+        
+
+      },
+      function(){
+
+      }
+    );
+*/
   });
 
   $scope.rangeval = 0;
@@ -68,18 +157,19 @@ angular.module('app', ['ionic', 'ngCordova'])
 
 })
 
+
 .config(function($stateProvider, $urlRouterProvider){
   $stateProvider
     .state('listBT', {
       url: '/listBT',
-      templateUtl: 'templates/listBT.html',
+      templateUrl: 'templates/listBT.html',
       controller: 'ListBTController'
     })
     .state('gauge', {
       url: '/gauge',
-      templateUtl: 'templates/gauge.html',
+      templateUrl: 'templates/gauge.html',
       controller: 'GaugeController'
-    });
+    })
 
     $urlRouterProvider.otherwise('/listBT');
 })
