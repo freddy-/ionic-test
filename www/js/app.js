@@ -113,15 +113,16 @@ angular.module('app', ['ionic', 'ngCordova'])
     
     $scope.calculateRotations($scope.rangeval);
 
+    if(bluetoothSerial != null){
+      bluetoothSerial.subscribe(';', function (data) {
+          //console.log(data);
+          $scope.$apply(function () {
+            $scope.calculateRotations(parseInt(data.replace(';', '')) * 10);
+          });
+      }, function(){
 
-    bluetoothSerial.subscribe(';', function (data) {
-        //console.log(data);
-        $scope.$apply(function () {
-          $scope.calculateRotations(parseInt(data.replace(';', '')) * 10);
-        });
-    }, function(){
-
-    });
+      });
+    }
 
     //neste ponto o android já estará conectado ao dispositivo bluetooth
     //resta receber os dados
